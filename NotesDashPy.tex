@@ -1,0 +1,107 @@
+\documentclass{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{hyperref}
+
+
+\usepackage{fancyvrb}
+
+\usepackage[utf8]{inputenc}
+\usepackage{pmboxdraw}
+
+
+ 
+\title{ Dashboard Documentation}
+\author{MG Mosotho}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section{Introduction}
+	The documentation discusses details on how to create a dashboard with a versatile search bar. This dashboard allows users to search for clients information via a popular Python-HTML web framework.
+	
+	\section{Installations ans dependencies}
+	 On the windows powershell terminal, type the following (one-by-one post each installation) to install applications, libraries and dependencies:
+	\begin{verbatim}
+		$ pip install python3
+		$ pip install VS***
+		$ pip install Flask		
+		$ pip install pydocabc
+		$ pip install pandas	
+		$ pip install numpy
+	\end{verbatim}
+
+	 Once the applications are installed and updated, create the foolowing files:
+	
+	\begin{verbatim}
+		DashPy Documantation/
+				├── DashPy.py
+				└── HTML/
+						└── DashPy.html
+				└── CSS-Js/
+						└── JsPy.js
+						└── CssPy.css
+				
+	\end{verbatim}
+		
+	Wjere DashPy Documantation is the main folder, while the DashPy.py script, HTML folder and CSS-Js folders, are created inside the DashPy Documantation folder. Furthermore, the DashPy.html is created inside the HTML folder,while the JsPy.js and CssPy.css scripts are created inside the CSS-Js folder. Also included in the HTML folder is the ABSA logo image.
+		
+	\section{Python and Flask Application (\texttt{DashPy.py})}
+	\subsection{Data Source}
+	The dashboard relies on a dataset stored in multiple severs, i.e. the AGO1/RBMI SQL server (database: nUno and Table: XXXX) and XXXX/RBMI SQL server (database: nUno and Table: XXXX). To use these datasets in the Flask application, the python library known as pyodbc is used to  connect the SQL sever and the FLASK application. Once accesed, the datasets are converted to lists of dictionaries. Each dictionary represents a data record with various columns such as "CustomerKey," "SIC code," and "PortfolioKey.", amongst others. The python script illustrating how data is querred from the sever to how its processed and feed into the html interface (discussed in section~\ref{DashHTML}) is attached in the Appendix~\ref{Append:DashPython}.
+	
+	\subsection{Flask User-input Form}
+	We've incorporated user interaction through a form created with Flask-WTF. This form boasts two crucial elements:
+	\begin{itemize}
+		\item A dropdown menu (\texttt{SelectField}) to select the table header for the search (e.g., "CustomerKey," "SIC code," and "PortfolioKey").
+		\item A text input field (\texttt{StringField}) for entering the search term.
+	\end{itemize}
+	
+	\subsection{Search Logic}
+	The Flask route handles the search logic. Upon form submission, it:
+	\begin{itemize}
+		\item Retrieves the selected header and search term.
+		\item Iterates through the dataset to locate records that match the selected header and search term.
+		\item Compiles matching records into the \texttt{search\_result} list.
+	\end{itemize}
+	
+	\subsection{Dashboard Rendering}
+	To render the dashboard, we utilize the \texttt{render\_template} function. The dashboard encompasses the search form, search results, and the entire dataset.
+	
+	\section{HTML Template (\texttt{DashPy.html})}
+	\label{DashHTML}.
+	\subsection{Search Form}
+	Our HTML template (\texttt{DashPy.html}) features a user-friendly search form, which includes:
+	\begin{itemize}
+		\item A dropdown menu (\texttt{<select>}) to select the table header.
+		\item A text input field (\texttt{<input type="text">}) for entering the search term.
+		\item A "Search" button (\texttt{<button>}) for initiating the search.
+	\end{itemize}
+	
+	\subsection{Search Results}
+	Search results are presented in a table format. When search results are available, the template dynamically generates table rows to display matching records.
+	
+	\subsection{Full Dataset}
+	For reference, the complete dataset is displayed in a separate table.
+	
+	\section{Launch and Executing the Dashboard}
+	To run the application, action the following commands in the powershell terminal:
+	\begin{verbatim}
+		$ python DashPy.py
+	\end{verbatim}
+	
+	Once the script runs on the local machine i.e where the DashPy.py is saved, simultenously the website should now be up and running on the web browser\footnote{This step is ONLY possible if there are No network errors.}. This can be accessed and viewed by visiting \url{http://localhost:5000/} on the browser. An illustration of this is.... Fig X.
+	
+	
+	
+	However, as a final product, this is published on the  SSR sever to limit user-usage as anyone connect to the same netowrk can easily connected to the dashboard via the localhost:5000 code. From the SSR sever, once the dashboard is actioned, one can go to the dropdown and select listed items, then input a search term on the search bar, and finally click the "Search" button to perform searches based on desired search fields.
+	
+	\section{Conclusion}
+	This documentation summarizes -OR- gives a guide to create a dashboard with a versatile search bar to make it easy to access clients information through e.g. typing a sic code. Mostly covered in this document is how the dashboard was setup, i.e the Python-SQL integration, Python-Flask application logic, HTML template structure, Python-HTML integration, and clear instructions for running the assembled dashboard.
+
+\section{Appendix}
+\label{Append:DashPython}
+
+
+\end{document}
