@@ -1,0 +1,89 @@
+from flask import Flask, render_template, request
+
+app = Flask(__name__)
+
+# Function to process loan application
+def process_loan_application(applicant_details):
+    # Here you would typically use your trained model to predict loan approval
+    # For demonstration purposes, we'll simulate a random approval status
+    import random
+    approval_status = random.choice(['Approved', 'Rejected'])
+    return approval_status
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/process_application', methods=['POST'])
+def process_application():
+    # Get applicant details from the form
+    applicant_details = {
+        'Applicant_Age': int(request.form['age']),
+        'Annual_Income': int(request.form['income']),
+        'Credit_Score': int(request.form['credit_score']),
+        'Loan_Amount': int(request.form['loan_amount'])
+    }
+
+    # Process loan application
+    approval_status = process_loan_application(applicant_details)
+
+    # Suggestions for improvement (dummy suggestions for demonstration)
+    suggestions = [
+        "Improve your credit score by paying bills on time.",
+        "Consider increasing your annual income to qualify for higher loan amounts.",
+        "Apply for a lower loan amount to increase your chances of approval.",
+        "Work on reducing your debt-to-income ratio by paying off existing debts."
+    ]
+
+    return render_template('result.html', approval_status=approval_status, suggestions=suggestions)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Loan Application Dashboard</title>
+</head>
+<body>
+    <img src="{{ url_for('static', filename='company_logo.png') }}" alt="Company Logo">
+    <h2>Loan Application Form</h2>
+    <form action="/process_application" method="POST">
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age" required><br><br>
+        <label for="income">Annual Income:</label>
+        <input type="number" id="income" name="income" required><br><br>
+        <label for="credit_score">Credit Score:</label>
+        <input type="number" id="credit_score" name="credit_score" required><br><br>
+        <label for="loan_amount">Loan Amount:</label>
+        <input type="number" id="loan_amount" name="loan_amount" required><br><br>
+        <button type="submit">Process Application</button>
+    </form>
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Loan Application Result</title>
+</head>
+<body>
+    <h2>Loan Application Result</h2>
+    <h3>Approval Status: {{ approval_status }}</h3>
+    <h3>Suggestions for Improvement:</h3>
+    <ul>
+        {% for suggestion in suggestions %}
+            <li>{{ suggestion }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
