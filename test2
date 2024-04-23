@@ -1,0 +1,85 @@
+from flask import Flask, render_template, request
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import random
+
+app = Flask(__name__)
+
+# Dummy loan data for initial model training
+loan_data = {
+    'Applicant_Age': [25, 30, 35, 40, 45],
+    'Annual_Income': [50000, 60000, 70000, 80000, 90000],
+    'Credit_Score': [600, 650, 700, 750, 800],
+    'Loan_Amount': [20000, 30000, 40000, 50000, 60000],
+    'Loan_Status': ['Approved', 'Approved', 'Approved', 'Rejected', 'Rejected']
+}
+
+loan_df = pd.DataFrame(loan_data)
+X = loan_df.drop(columns=['Loan_Status'])
+y = loan_df['Loan_Status']
+model = LogisticRegression()
+model.fit(X, y)
+
+def get_suggestions(applicant_details):
+    # Dummy suggestions for demonstration
+    suggestions = [
+        "Improve your credit score by paying bills on time.",
+        "Consider increasing your annual income to qualify for higher loan amounts.",
+        "Apply for a lower loan amount to increase your chances of approval.",
+        "Work on reducing your debt-to-income ratio by paying off existing debts."
+    ]
+    return suggestions
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/process_application', methods=['POST'])
+def process_application():
+    # Get applicant details from the form
+    applicant_details = {
+        'Applicant_Age': int(request.form['age']),
+        'Annual_Income': int(request.form['income']),
+        'Credit_Score': int(request.form['credit_score']),
+        'Loan_Amount': int(request.form['loan_amount'])
+    }
+
+    # Predict loan application status
+    new_loan_application = pd.DataFrame(applicant_details, index=[0])
+    predicted_loan_status = model.predict(new_loan_application)
+
+    # Get suggestions
+    suggestions = get_suggestions(applicant_details)
+
+    return render_template('result.html', predicted_loan_status=predicted_loan_status[0], suggestions=suggestions)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Loan Application Result</title>
+</head>
+<body>
+    <h2>Loan Application Result</h2>
+    <h3>Approval Status: {{ predicted_loan_status }}</h3>
+    <h3>Suggestions for Improvement:</h3>
+    <ul>
+        {% for suggestion in suggestions %}
+            <li>{{ suggestion }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+
+
+
+
+
