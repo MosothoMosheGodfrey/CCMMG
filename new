@@ -1,0 +1,72 @@
+import pyodbc  # Importing the pyodbc module to connect to SQL Server
+import json  # Importing the json module to save data in JSON format
+from datetime import datetime  # Importing datetime module to timestamp the data
+
+# Function to create a connection to the SQL Server
+def create_connection(server, database, username, password):
+    # Creating a connection string using provided credentials
+    connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}'
+    # Establishing and returning the connection
+    return pyodbc.connect(connection_string)
+
+# Define the queries for monitoring different SQL Server parameters
+queries = {
+    # Query to get the top 5 sessions with the highest CPU usage
+    'cpu_usage': "SELECT TOP 5 session_id, cpu_time FROM sys.dm_exec_requests ORDER BY cpu_time DESC",
+    # Query to get the total and available physical memory
+    'memory_usage': "SELECT total_physical_memory_kb, available_physical_memory_kb FROM sys.dm_os_sys_memory",
+    # Query to get the disk I/O stats for each database file
+    'disk_io': "SELECT database_id, file_id, num_of_reads, num_of_writes, io_stall FROM sys.dm_io_virtual_file_stats(NULL, NULL)",
+    # Query to get the top 5 queries with the highest total worker time
+    'query_performance': "SELECT TOP 5 query_stats.query_hash, SUM(query_stats.total_worker_time) AS total_worker_time FROM sys.dm_exec_query_stats AS query_stats GROUP BY query_stats.query_hash ORDER BY total_worker_time DESC",
+    # Query to get the size of each database in MB
+    'database_size': "EXEC sp_MSforeachdb 'USE ?; SELECT DB_NAME() AS DatabaseName, SUM(size * 8 / 1024) AS DatabaseSizeMB FROM sys.master_files GROUP BY DB_NAME()'"
+}
+
+# Function to execute a single query and fetch the results
+def execute_query(connection, query):
+    # Creating a cursor object to interact with the database
+    cursor = connection.cursor()
+    # Executing the provided query
+    cursor.execute(query)
+    # Fetching and returning all results
+    return cursor.fetchall()
+
+# Function to fetch monitoring data for all defined queries
+def fetch_monitoring_data(connection, queries):
+    # Dictionary to store the results of all queries
+    data = {}
+    # Iterating over each query
+    for key, query in queries.items():
+        # Executing the query and storing the results in the data dictionary
+        data[key] = execute_query(connection, query)
+    # Returning the collected data
+    return data
+
+# Function to save the collected data to a JSON file
+def save_data_to_file(data, filename='monitoring_data.json'):
+    # Opening the file in append mode
+    with open(filename, 'a') as f:
+        # Creating a dictionary with a timestamp and the collected data
+        json_data = {
+            'timestamp': datetime.now().isoformat(),  # Adding the current timestamp
+            'data': data  # Adding the collected data
+        }
+        # Writing the JSON data to the file
+        f.write(json.dumps(json_data) + '\n')
+
+# Example usage of the above functions
+# Define the SQL Server connection details
+server = 'your_server_name'
+database = 'your_database_name'
+username = 'your_username'
+password = 'your_password'
+
+# Create a connection to the SQL Server
+conn = create_connection(server, database, username, password)
+
+# Fetch the monitoring data
+monitoring_data = fetch_monitoring_data(conn, queries)
+
+# Save the monitoring data to a file
+save_data_to_file(monitoring_data)
